@@ -18,5 +18,8 @@ or:
 ```
 <script src="https://unpkg.com/holoplay-core"></script>
 ```
-
+or in node:
+```
+const { HoloPlayClient, Message } = require('holoplay-core')
+```
 
