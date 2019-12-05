@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>HoloPlay Service by Looking Glass</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="stylesheet" href="/milligram.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css?family=PT+Mono&display=swap" rel="stylesheet">
+    
+  </head>  
+  <body>
+    <div class="container">
+
+      <h1>Learn to use HoloPlay Service by Looking Glass!</h1>
+
+      <div>
+        <h3>
+          Step 0. Install the HoloPlay Service
+        </h3>
+        <p>
+          You can download it here!
+        </p>
+        <h3>
+          Step 1. Select an example quilt...
+        </h3>
+        <div class="row">
+          <div class="column">
+            <img class="example-img" name="missy" src="https://cdn.glitch.com/56625e09-c2b3-4171-96a8-c2f27991ffd4%2Fmissythumbnail.png?v=1570475282485">
+          </div>
+          <div class="column">
+            <img class="example-img" name="knife" src="https://cdn.glitch.com/56625e09-c2b3-4171-96a8-c2f27991ffd4%2Fknife-thumbnail.jpg?v=1570475612945">
+          </div>
+          <div class="column">
+            <img class="example-img" name="assassin" src="https://cdn.glitch.com/56625e09-c2b3-4171-96a8-c2f27991ffd4%2Fassassinthumb.png?v=1570475736268">
+          </div>
+        </div>
+        
+        <h3>
+          ... or upload your own quilt!
+        </h3>
+        <form>
+          <fieldset>
+            <label for="files">Select a file: </label>
+            <input id="files" type="file" name="myFile">
+          </fieldset>
+        </form>
+        
+        <div id="info">
+        </div>
+      
+      </div>
+      
+      
+      <div>
+        <h3>
+          Step 2. Send to Looking Glass
+        </h3>
+        <button class="button button-outline" id="reset">Reset Values</button>
+        <form>
+          <fieldset>
+            <div class="row">
+              <div class="column">
+                <label for="vx">Columns</label>
+                <input type="number" name="vx" value="5" min="1">
+              </div>
+              <div class="column">
+                <label for="vy">Rows</label>
+                <input type="number" name="vy" value="9" min="1">
+              </div>
+              <div class="column">
+                <label for="vtotal">Total Views</label>
+                <input type="number" name="vtotal" value="45" min="1">
+              </div>
+            </div>
+            
+          </fieldset>
+        </form>
+        <button id="show-quilt" style="margin-bottom: 40px">
+          Click to Send Quilt to Looking Glass
+        </button>
+
+      </div>
+      
+      <div>
+        <h3>
+          Step 3. Learn how to do it!
+        </h3>
+        <p>
+          Download and install the HoloPlay Service here. You will also need the HoloPlayClient.js and CBOR.js file.
+        </p>
+        <p>
+          Instantiate a HoloPlay client.
+        </p>
+        <pre><code>
+let client = new HoloPlayClient(onopen, onerror, onclose);
+
+</code></pre>
+        <p>
+          By sending a show command with attached binaries of the loaded file, you can show stuff in the Looking Glass!
+        </p>
+        <pre><code>
+let showCmd = new ShowMessage({vx :5, vy :9, vtotal: 45}, rawData);
+  client
+    .sendMessage(showCmd)
+    .then(function() { 
+      document.getElementById("info").innerHTML = "Quilt displayed.";
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+    
+</code></pre>
+      </div>
+  
+      <div class="glitchButton" style="position:fixed;top:20px;right:20px;"></div>
+
+    </div>
+
+  </body>
+  <script src="https://button.glitch.me/button.js"></script>
+  <script src="https://unpkg.com/holoplay-core" type="text/javascript"></script>
+  <script src="script.js" defer></script>
+</html>

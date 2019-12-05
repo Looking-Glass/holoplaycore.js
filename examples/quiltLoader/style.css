@@ -1,0 +1,30 @@
+/* CSS files add styling rules to your content */
+
+body {
+  font-family: "Benton Sans", "Helvetica Neue", helvetica, arial, sans-serif;
+  margin: 2em;
+  font-weight: 700;
+}
+
+h1 {
+  font-style: italic;
+  color: #373fff;
+}
+
+pre>code {
+  font-family: 'PT Mono', monospace;
+}
+
+p {
+  font-weight: normal;
+}
+
+.example-img:hover {
+  border: 3px solid #373fff; 
+}
+
+#info{
+  font-size: 14px;
+  font-weight: normal;
+  color: red;
+}
