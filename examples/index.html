@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>HoloPlay Service Diagnostic</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="milligram.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=PT+Mono&display=swap" rel="stylesheet">
+  </head>  
+  <body>
+    <div class="container">
+      <h1>HoloPlay Service Diagnostic</h1>
+      <h3>Status</h3>
+      <div id="status"></div>
+      <div id="log"></div>
+      <pre><div id="calibration"></div></pre>
+    </div>
+    <!-- scripts -->
+    <script src="https://unpkg.com/holoplay-core@0.0.6/dist/holoplaycore.min.js" type="text/javascript"></script>
+    <script>
+    let client;
+    (function() {
+      client = new HoloPlayClient(message => {
+        showCalibration(message);
+      },
+        error => { 
+        log(error);
+      });
+    })();
+    
+    function log(msg) {
+      document.getElementById("log").innerHTML += msg;
+    }
+    function showCalibration(data) {
+      let msg;
+      if (data.error != 0) {
+        // error codes
+
+      } else if (data.devices === []) {
+        log("No Looking Glass found");
+      } else {
+        let calibration = JSON.stringify(msg, null, 2);
+        document.getElementById("calibration").innerHTML = calibration;
+      }
+    }
+    
+    </script>
+  </body>
+</html>
