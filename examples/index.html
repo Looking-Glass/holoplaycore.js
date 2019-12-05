@@ -12,38 +12,58 @@
   <body>
     <div class="container">
       <h1>HoloPlay Service Diagnostic</h1>
-      <h3>Status</h3>
-      <div id="status"></div>
+      <div>
+        <h3>HoloPlay Service Status</h3>
+        <span id="hops-status"></span>
+      </div>
+      <div>
+        <h3>Looking Glass Status</h3>
+        <span id="lkg-status"></span>
+      </div>
       <div id="log"></div>
-      <pre><div id="calibration"></div></pre>
+      <pre><code>
+        <div id="calibration"></div>
+      </code></pre>
     </div>
     <!-- scripts -->
-    <script src="https://unpkg.com/holoplay-core@0.0.6/dist/holoplaycore.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/holoplay-core@0.0.7/dist/holoplaycore.min.js" type="text/javascript"></script>
     <script>
     let client;
     (function() {
       client = new HoloPlayClient(message => {
         showCalibration(message);
-      },
-        error => { 
-        log(error);
+      }, error => { 
+        driverError(error);
       });
     })();
     
-    function log(msg) {
-      document.getElementById("log").innerHTML += msg;
-    }
     function showCalibration(data) {
-      let msg;
+      document.getElementById("hops-status").innerHTML = "HoloPlay Service running. Version: " + data['version'];
+      //document.getElementById("calibration").innerHTML = JSON.stringify(data, null, 2);
       if (data.error != 0) {
         // error codes
 
-      } else if (data.devices === []) {
-        log("No Looking Glass found");
+      } else if (data.devices.length === 0) {
+        // no lkg
+        document.getElementById("lkg-status").innerHTML = "No Looking Glass connected.";
+      } else if (data.devices[0].state == "nocalibration") {
+        document.getElementById("calibration").innerHTML = "Error loading calibration, please restart HoloPlay Service and reconnect the cables of Looking Glass.";
       } else {
-        let calibration = JSON.stringify(msg, null, 2);
-        document.getElementById("calibration").innerHTML = calibration;
+        // there is lkg 
+        let lkgCount = data.devices.length;
+        document.getElementById("lkg-status").innerHTML = (lkgCount.toString() + " Looking Glass connected.");
+        for (var i=0; i<lkgCount; i++) {
+          document.getElementById("calibration").innerHTML += "\n// Calibration for Looking Glass " + i +"\n";
+          let calibration = JSON.stringify(data.devices[i].calibration, null, 2);
+          document.getElementById("calibration").innerHTML += calibration;
+        }
       }
+    }
+    function log(msg) {
+      document.getElementById("log").innerHTML += msg;
+    }
+    function driverError(err) {
+      document.getElementById("hops-status").innerHTML = "HoloPlay Service not detected.";
     }
     
     </script>
