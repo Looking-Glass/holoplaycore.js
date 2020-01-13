@@ -1,0 +1,118 @@
+<html>
+
+	<head>
+		<script src="https://unpkg.com/holoplay-core" type="text/javascript"></script>
+		<script type="text/javascript">
+			var curQuiltOptions = 
+			{
+				q : null,
+				vx : null,
+				vy : null,
+				vt : null,
+				a : null,
+				ov : null
+			}
+			function setup() {
+				document.body.addEventListener('drop', (e) => {
+					e.preventDefault();
+					const file = e.dataTransfer.items[0].getAsFile();
+					const reader = new FileReader();
+					reader.onload = function (e) {
+						rawData = e.target.result;
+					}
+					reader.readAsArrayBuffer(file);
+				});
+				document.body.addEventListener('dragover', (e) => {
+					e.preventDefault();
+				});
+				populate();
+				updateURL();
+				if (curQuiltOptions.q != '' && curQuiltOptions.q != null) showquilt();
+			}
+			function populate() {
+				var urlParams = new URLSearchParams(window.location.search);
+				for (let key in curQuiltOptions)
+				{
+					val = urlParams.get(key);
+					if (val != null) document.getElementById(key).value = val;
+				}
+			}
+/*
+			function downloadFromURL(url){
+				var xhttp = new XMLHttpRequest();
+				xhttp.responseType = 'arraybuffer';
+				xhttp.onreadystatechange = function() {
+					if (this.readyState == 4) {
+						if (this.status == 200) {
+							data = new Uint8Array(this.response);
+						} else return 0;
+					} else return 0;
+				};
+				xhttp.open("GET", url, true);
+				xhttp.send();
+			}
+			*/
+			function sanitize(input_id) {
+				field = document.getElementById(input_id);
+				input = field.value;
+				if (input == null || input == '') return null;
+				if (field.className == "float") {return (isNaN(input) ? null : (parseFloat(input)))}
+				else if (field.className == "int") {return (isNaN(input) ? null : (parseInt(input)))}
+				return input.trim();
+			}
+			function populateEntry(key)
+			{
+				curQuiltOptions[key] = sanitize(key);
+				document.getElementById(key).value = curQuiltOptions[key];
+			}
+			function imageLoaded()
+			{
+				document.getElementById("preview_img").style="display:block;width:200px";
+			}
+			function showquilt()
+			{
+				if (curQuiltOptions.q != null)
+				{
+					document.getElementById("preview_img").src=curQuiltOptions.q;
+				}
+			}
+			function updateURL(key=null) {
+				if (key == null) { for (let key in curQuiltOptions) populateEntry(key); }
+				else populateEntry(key);
+				if (curQuiltOptions.q == '') return;
+				myURL = window.location.href.split("?")[0];
+				myURL = myURL.replace(/\/$/, '');
+				first = true; 
+				for (let key in curQuiltOptions)
+				{
+					val = curQuiltOptions[key];
+					if (val != null) {
+						if (!first) myURL+= "&";
+						else myURL += "?";
+						first = false;
+						myURL+=key;
+						myURL+="=";
+						myURL+=val;
+					}
+				}
+				document.getElementById("share_field").value = myURL;
+				window.history.replaceState({}, "", myURL);
+			}
+		</script>
+
+		<title>Quilt Viewer</title>
+	</head>
+	<body onload="setup()">
+		vx: <input type="text" class="int" onchange="updateURL('vx')" id="vx"><br/>
+		vy: <input type="text" class="int" onchange="updateURL('vy')" id="vy"><br/>
+		vt: <input type="text" class="int" onchange="updateURL('vt')" id="vt"><br/>
+		aspect: <input type="text" class="float" onchange="updateURL('a')" id="a"><br/>
+		overscan: <input type="text" class="int" onchange="updateURL('ov')" id="ov"><br/>
+		<br/>
+		url: <input type="text" size=100 id="q" onchange="updateURL('q')"><br/>
+		share url: <input type="text" size=100 readonly id="share_field"><br/>
+		<button onclick="showquilt()">Show</button>
+		<img id="preview_img" onload="imageLoaded()" style="display:none"/>
+	</body>
+
+</html>
