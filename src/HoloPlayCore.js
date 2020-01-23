@@ -6,7 +6,7 @@
  * @link    https://lookingglassfactory.com/ 
  * @file    This files defines the HoloPlayClient class and Message class.
  * @author  Looking Glass Factory.
- * @version 0.0.7
+ * @version 0.0.8
  * @license SEE LICENSE IN LICENSE.md
  */
 
