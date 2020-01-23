@@ -277,6 +277,32 @@ class InfoMessage extends Message {
     super(cmd, null);
   }
 }
+/** Get shader uniforms from HoloPlayService */
+class UniformsMessage extends Message {
+  /**
+   * @constructor
+   * @param {object} 
+   */
+  constructor () {
+    let cmd = {
+      "uniforms" : {}
+    };
+    super(cmd, bindata);
+  }
+}
+/** Get GLSL shader code from HoloPlayService */
+class ShaderMessage extends Message {
+  /**
+   * @constructor
+   * @param {object} 
+   */
+  constructor () {
+    let cmd = {
+      "shader" : {}
+    };
+    super(cmd, bindata);
+  }
+}
 /** Show a quilt in the Looking Glass with the binary data of quilt provided */
 class ShowMessage extends Message {
   /**
@@ -374,5 +400,7 @@ if (typeof module === "object" && module && typeof module.exports === "object") 
     ShowMessage: ShowMessage,
     CacheMessage: CacheMessage,
     ShowCachedMessage: ShowCachedMessage
+    ShaderMessage: ShaderMessage,
+    UniformsMessage: UniformsMessage,
   }
 }
