@@ -11,7 +11,7 @@
  */
 
 /** Class representing a client to communicates with the HoloPlayService. */
-class HoloPlayClient {
+export default class HoloPlayClient {
   /**
    * Establish a client to talk to HoloPlayService.
    * @constructor
@@ -399,7 +399,7 @@ if (typeof module === "object" && module && typeof module.exports === "object") 
     InfoMessage: InfoMessage,
     ShowMessage: ShowMessage,
     CacheMessage: CacheMessage,
-    ShowCachedMessage: ShowCachedMessage
+    ShowCachedMessage: ShowCachedMessage,
     ShaderMessage: ShaderMessage,
     UniformsMessage: UniformsMessage,
   }
