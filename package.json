@@ -1,9 +1,11 @@
 {
   "name": "holoplay-core",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "A library that works with Looking Glass HoloPlay Service",
-  "main": "./dist/holoplaycore.min.js",
+  "main": "dist/holoplaycore.js",
+  "module": "dist/holoplaycore.module.js",
   "scripts": {
+    "build": "rollup --config && terser dist/holoplaycore.js -m --output dist/holoplaycore.min.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -13,12 +15,11 @@
   ],
   "author": "Looking Glass Factory",
   "license": "SEE LICENSE IN LICENSE.md",
-  "devDependencies": {
-    "exports-loader": "^0.7.0",
-    "expose-loader": "^0.7.5",
-    "webpack": "^4.41.2"
-  },
   "dependencies": {
     "ws": "^7.2.0"
+  },
+  "devDependencies": {
+    "rollup": "^2.1.0",
+    "terser": "^4.6.7"
   }
 }
