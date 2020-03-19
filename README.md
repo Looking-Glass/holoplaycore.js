@@ -25,7 +25,6 @@ Include in html with script tag: (use holoplaycore.min.js for the minified versi
 ```
 or skip the script tag and import the ES6 module:
 ```
-<!-- in your own html... -->
 <script type="module">
   import * as HoloPlayCore from './node_modules/holoplay-core/dist/holoplaycore.js';
   const client = new HoloPlayCore.Client(
