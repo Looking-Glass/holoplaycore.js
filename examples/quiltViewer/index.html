@@ -3,7 +3,7 @@
 	<head>
                 <script src="../../dist/holoplaycore.js"></script>
 		<script type="text/javascript">
-			let client = new HoloPlay.Core.Client();
+			let client = new HoloPlayCore.Client();
 			var curQuiltOptions = 
 			{
 				q : null,
@@ -56,7 +56,7 @@
 				if (curQuiltOptions.a != null) s.aspect = curQuiltOptions.a;
 				if (curQuiltOptions.ov != null) s.ov = curQuiltOptions.ov;
 				console.log(s);
-				let showCmd = new HoloPlay.Core.ShowMessage(settings=s, bindata=new Uint8Array(buf));
+				let showCmd = new HoloPlayCore.ShowMessage(settings=s, bindata=new Uint8Array(buf));
 				client.sendMessage(showCmd).then(
 					function() { 
 						console.log("Quilt displayed");

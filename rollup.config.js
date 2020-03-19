@@ -4,7 +4,7 @@ export default [
     output: {
       file: 'dist/holoplaycore.js',
       format: 'umd',
-      name: 'HoloPlay.Core',
+      name: 'HoloPlayCore',
     },
   },
   {

@@ -11,7 +11,7 @@ for (var i = 0; i < quilts.length; i++) {
   quilts[i].addEventListener('click', selectQuilt);
 }
 
-client = new HoloPlay.Core.Client();
+client = new HoloPlayCore.Client();
 
 function handleFileSelect(evt) {
   var f = evt.target.files[0];
@@ -39,7 +39,7 @@ function sendShowCommand() {
   var total = document.getElementsByName('vtotal')[0].value;
 
   var showCmd =
-      new HoloPlay.Core.ShowMessage({vx: x, vy: y, vtotal: total}, rawData);
+      new HoloPlayCore.ShowMessage({vx: x, vy: y, vtotal: total}, rawData);
   client.sendMessage(showCmd)
       .then(function() {
         document.getElementById('info').innerHTML += 'Quilt displayed.<br>';

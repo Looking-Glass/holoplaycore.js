@@ -29,7 +29,7 @@
     <script type="module">
       let client;
       (function() {
-        client = new HoloPlay.Core.Client(message => {
+        client = new HoloPlayCore.Client(message => {
           showCalibration(message);
         }, error => { 
           driverError(error);

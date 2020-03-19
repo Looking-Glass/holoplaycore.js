@@ -13,13 +13,43 @@ npm install --save holoplay-core
 Include in html with script tag: (use holoplaycore.min.js for the minified version)
 ```
 <script src="./node_modules/holoplay-core/dist/holoplaycore.js"></script>
+<script>
+  const client = new HoloPlayCore.Client(
+      (msg) => {
+        console.log('Calibration values:', msg);
+      },
+      (err) => {
+        console.error('Error creating HoloPlay client:', err);
+      });
+</script>
 ```
-or:
+or skip the script tag and import the ES6 module:
+```
+<!-- in your own html... -->
+<script type="module">
+  import * as HoloPlayCore from './node_modules/holoplay-core/dist/holoplaycore.js';
+  const client = new HoloPlayCore.Client(
+      (msg) => {
+        console.log('Calibration values:', msg);
+      },
+      (err) => {
+        console.error('Error creating HoloPlay client:', err);
+      });
+</script>
+```
+or load from a CDN:
 ```
 <script src="https://unpkg.com/holoplay-core"></script>
 ```
 or in node:
 ```
-const { HoloPlayClient, Message } = require('holoplay-core')
+const HoloPlayCore = require('holoplay-core');
+const client = new HoloPlayCore.Client(
+      (msg) => {
+        console.log('Calibration values:', msg);
+      },
+      (err) => {
+        console.error('Error creating HoloPlay client:', err);
+      });
 ```
 
