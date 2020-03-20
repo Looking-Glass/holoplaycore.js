@@ -23,11 +23,10 @@ Include in html with script tag: (use holoplaycore.min.js for the minified versi
       });
 </script>
 ```
-or skip the script tag and import the ES6 module:
+or skip the script tag and import the ES6 module (note the different filename!):
 ```
-<!-- in your own html... -->
 <script type="module">
-  import * as HoloPlayCore from './node_modules/holoplay-core/dist/holoplaycore.js';
+  import * as HoloPlayCore from './node_modules/holoplay-core/dist/holoplaycore.module.js';
   const client = new HoloPlayCore.Client(
       (msg) => {
         console.log('Calibration values:', msg);
