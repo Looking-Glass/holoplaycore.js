@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="./style.css">
     <link href="https://fonts.googleapis.com/css?family=PT+Mono&display=swap" rel="stylesheet">
     
+    <script src="../../dist/holoplaycore.js"></script>
+    <script src="script.js" defer></script>
   </head>  
   <body>
     <div class="container">
@@ -95,14 +97,14 @@
           Instantiate a HoloPlay client.
         </p>
         <pre><code>
-let client = new HoloPlayClient(onopen, onerror, onclose);
+let client = new HoloPlay.Core.Client(onopen, onerror, onclose);
 
 </code></pre>
         <p>
           By sending a show command with attached binaries of the loaded file, you can show stuff in the Looking Glass!
         </p>
         <pre><code>
-let showCmd = new ShowMessage({vx :5, vy :9, vtotal: 45}, rawData);
+let showCmd = new HoloPlay.Core.ShowMessage({vx :5, vy :9, vtotal: 45}, rawData);
   client
     .sendMessage(showCmd)
     .then(function() { 
@@ -120,7 +122,4 @@ let showCmd = new ShowMessage({vx :5, vy :9, vtotal: 45}, rawData);
     </div>
 
   </body>
-  <script src="https://button.glitch.me/button.js"></script>
-  <script src="https://unpkg.com/holoplay-core" type="text/javascript"></script>
-  <script src="script.js" defer></script>
 </html>
