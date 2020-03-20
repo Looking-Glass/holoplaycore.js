@@ -10,7 +10,7 @@
  * @license SEE LICENSE IN LICENSE.md
  */
 
-import * as CBOR from './cbor.js';
+import CBOR from 'cbor-js';
 
 // Polyfill WebSocket for nodejs applications.
 const WebSocket =

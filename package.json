@@ -16,9 +16,12 @@
   "author": "Looking Glass Factory",
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
+    "cbor-js": "^0.1.0",
     "ws": "^7.2.0"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
     "rollup": "^2.1.0",
     "terser": "^4.6.7"
   }
