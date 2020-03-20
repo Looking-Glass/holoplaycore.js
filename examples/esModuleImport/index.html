@@ -24,9 +24,10 @@
         <div id="calibration"></div>
       </code></pre>
     </div>
-    <script src="../../dist/holoplaycore.js"></script>
     <!-- scripts -->
-    <script>
+    <script type="module">
+      import * as HoloPlayCore from '../../dist/holoplaycore.module.js';
+
       let client;
       (function() {
         client = new HoloPlayCore.Client(message => {
