@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>HoloPlay Service by Looking Glass</title>
+    <title>HoloPlayCore.JS by Looking Glass Factory</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,27 +16,27 @@
   <body>
     <div class="container">
 
-      <h1>Learn to use HoloPlay Service by Looking Glass!</h1>
+      <h1>Learn to use HoloPlayCore.JS by Looking Glass!</h1>
 
       <div>
         <h3>
           Step 0. Install the HoloPlay Service
         </h3>
         <p>
-          You can download it here!
+        You can download it <a href="https://lookingglassfactory.com/software/holoplay-service">here</a>!
         </p>
         <h3>
           Step 1. Select an example quilt...
         </h3>
         <div class="row">
           <div class="column">
-            <img class="example-img" name="missy" src="https://cdn.glitch.com/56625e09-c2b3-4171-96a8-c2f27991ffd4%2Fmissythumbnail.png?v=1570475282485">
+            <img class="example-img" name="missy" src="missythumbnail.png">
           </div>
           <div class="column">
-            <img class="example-img" name="knife" src="https://cdn.glitch.com/56625e09-c2b3-4171-96a8-c2f27991ffd4%2Fknife-thumbnail.jpg?v=1570475612945">
+            <img class="example-img" name="knife" src="knife-thumbnail.jpg">
           </div>
           <div class="column">
-            <img class="example-img" name="assassin" src="https://cdn.glitch.com/56625e09-c2b3-4171-96a8-c2f27991ffd4%2Fassassinthumb.png?v=1570475736268">
+            <img class="example-img" name="assassin" src="assassinthumb.png?">
           </div>
         </div>
         
@@ -49,10 +49,8 @@
             <input id="files" type="file" name="myFile">
           </fieldset>
         </form>
-        
         <div id="info">
         </div>
-      
       </div>
       
       
@@ -76,6 +74,10 @@
                 <label for="vtotal">Total Views</label>
                 <input type="number" name="vtotal" value="45" min="1">
               </div>
+              <div class="column">
+                <label for="aspect">Aspect Ratio</label>
+                <input type="number" name="aspect" value="1.6" min="0">
+              </div>
             </div>
             
           </fieldset>
@@ -88,23 +90,35 @@
       
       <div>
         <h3>
-          Step 3. Learn how to do it!
+          Step 3. Learn how to use HoloPlayCore JS!
         </h3>
         <p>
-          Download and install the HoloPlay Service here. You will also need the HoloPlayClient.js and CBOR.js file.
+          There are 3 ways to use HoloPlayCore.js. You can either import it via script tag, like so:
+        <pre><code>
+&lt;script src="holoplaycore.js"&gt;&lt;/script&gt;
+</code></pre>
+          Or import it using ES6 module syntax:
+        <pre><code>
+import * as HoloPlayCore from 'holoplaycore.module.js';
+</code></pre>
+          Or even use it in node.js.
+        <pre><code>
+const HoloPlayCore = require('holoplaycore.js');
+</code></pre>
+
         </p>
         <p>
           Instantiate a HoloPlay client.
         </p>
         <pre><code>
-let client = new HoloPlay.Core.Client(onopen, onerror, onclose);
+let client = new HoloPlayCore.Client(onopen, onerror, onclose);
 
 </code></pre>
         <p>
           By sending a show command with attached binaries of the loaded file, you can show stuff in the Looking Glass!
         </p>
         <pre><code>
-let showCmd = new HoloPlay.Core.ShowMessage({vx :5, vy :9, vtotal: 45}, rawData);
+let showCmd = new HoloPlayCore.ShowMessage({vx :5, vy :9, vtotal: 45}, rawData);
   client
     .sendMessage(showCmd)
     .then(function() { 
@@ -116,9 +130,6 @@ let showCmd = new HoloPlay.Core.ShowMessage({vx :5, vy :9, vtotal: 45}, rawData)
     
 </code></pre>
       </div>
-  
-      <div class="glitchButton" style="position:fixed;top:20px;right:20px;"></div>
-
     </div>
 
   </body>

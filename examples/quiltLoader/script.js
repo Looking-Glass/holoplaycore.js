@@ -37,9 +37,10 @@ function sendShowCommand() {
   var x = document.getElementsByName('vx')[0].value;
   var y = document.getElementsByName('vy')[0].value;
   var total = document.getElementsByName('vtotal')[0].value;
+  var aspect = document.getElementsByName('aspect')[0].value;
 
   var showCmd =
-      new HoloPlayCore.ShowMessage({vx: x, vy: y, vtotal: total}, rawData);
+      new HoloPlayCore.ShowMessage({vx: x, vy: y, vtotal: total, aspect: aspect}, rawData);
   client.sendMessage(showCmd)
       .then(function() {
         document.getElementById('info').innerHTML += 'Quilt displayed.<br>';

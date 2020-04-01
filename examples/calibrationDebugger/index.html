@@ -40,7 +40,7 @@
         document.getElementById("hops-status").innerHTML = "HoloPlay Service running. Version: " + data['version'];
         if (data.error != 0) {
           // error codes
-
+          document.getElementById("lkg-status").innerHTML = "HoloPlay Service error. Error code: " + data.error.toString();
         } else if (data.devices.length === 0) {
           // no lkg
           document.getElementById("lkg-status").innerHTML = "No Looking Glass connected.";
