@@ -28,11 +28,23 @@
     <!-- scripts -->
     <script>
       let client;
+      const errorCodes = {
+        0: "No error, everything ok",
+        1: "CBOR parser failure",
+        2: "HoPS could not understand the command",
+        3: "HoPS expected an image file in binary data, but could not read one",
+        4: "Client attempted to draw to a Looking Glass that is not connected or has no calibration",
+        5: "Client attempted to load a nonexistent key from the cache",
+        6: "Client attempted to register an app ID after sending one or more messages",
+        7: "Client attempted to do something that is not allowed"
+      };
+
+      // initialize HoloPlay Core client once the page is ready
       (function() {
         client = new HoloPlayCore.Client(message => {
           showCalibration(message);
         }, error => { 
-          driverError(error);
+          showError(error);
         });
       })();
       
@@ -40,7 +52,8 @@
         document.getElementById("hops-status").innerHTML = "HoloPlay Service running. Version: " + data['version'];
         if (data.error != 0) {
           // error codes
-          document.getElementById("lkg-status").innerHTML = "HoloPlay Service error. Error code: " + data.error.toString();
+          let errorMsg = errorCodes[data.error];
+          document.getElementById("lkg-status").innerHTML = "HoloPlay Service error. Error: " + errorMsg;
         } else if (data.devices.length === 0) {
           // no lkg
           document.getElementById("lkg-status").innerHTML = "No Looking Glass connected.";
@@ -60,9 +73,10 @@
       function log(msg) {
         document.getElementById("log").innerHTML += msg;
       }
-      function driverError(err) {
+      function showError(err) {
         document.getElementById("hops-status").innerHTML = "HoloPlay Service not detected.";
       }
+
     </script>
   </body>
 </html>

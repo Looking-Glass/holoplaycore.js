@@ -60,6 +60,7 @@ function resetValue() {
   document.getElementsByName('vx')[0].value = 5;
   document.getElementsByName('vy')[0].value = 9;
   document.getElementsByName('vtotal')[0].value = 45;
+  document.getElementsByName('aspect')[0].value = 1.6;
 }
 
 let exampleQuilts = {
@@ -84,7 +85,7 @@ function loadExampleQuilt(quiltUrl) {
     if (this.readyState == 4) {
       if (this.status == 200) {
         rawData = new Uint8Array(this.response);
-        document.getElementById('info').innerHTML += 'Image loading done.<br>';
+        document.getElementById('info').innerHTML += 'Image loading done. Press the "Send Quilt to Looking Glass" button now.<br>';
       } else {
         console.log('Could not load ' + quiltUrl + '.');
       }
