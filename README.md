@@ -4,7 +4,7 @@
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/holoplay-core)
 ![npm](https://img.shields.io/npm/dm/holoplay-core)
 
-This is a Javascript library to communicate with Looking Glass HoloPlay Service.
+The HoloPlay Core SDK enables developers to integrate the Looking Glass into their 3D workflow, regardless of software. This Javascript version is ideal for web frontend and node development.
 
 [NPM Package](https://www.npmjs.com/package/holoplay-core) — [Documentation](https://docs.lookingglassfactory.com/)
 — [Forum](https://forum.lookingglassfactory.com/) — [Discord](https://discord.gg/d49u8J) — [Official Site](https://lookingglassfactory.com/)
@@ -61,3 +61,7 @@ const client = new HoloPlayCore.Client(
         console.error('Error creating HoloPlay client:', err);
       });
 ```
+
+## Build
+
+See `BUILD.md`.
