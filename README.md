@@ -4,9 +4,11 @@
 ![npm bundle size](https://img.shields.io/bundlephobia/minzip/holoplay-core)
 ![npm](https://img.shields.io/npm/dm/holoplay-core)
 
-The HoloPlay Core SDK enables developers to integrate the Looking Glass into their 3D workflow, regardless of software. This Javascript version is ideal for web frontend and node development.
+The HoloPlay Core SDK unlocks the ability to integrate your existing 3D software with Looking Glass displays, making the Looking Glass a holographic second monitor.
+This Javascript version is ideal for web frontend and node development. 
+There's also a native dynamic library version for Windows, Mac, and Linux.
 
-[NPM Package](https://www.npmjs.com/package/holoplay-core) — [Documentation](https://docs.lookingglassfactory.com/)
+[NPM Package](https://www.npmjs.com/package/holoplay-core) — [Documentation](http://docs.lookingglassfactory.com/HoloPlayCore/)
 — [Forum](https://forum.lookingglassfactory.com/) — [Discord](https://discord.gg/d49u8J) — [Official Site](https://lookingglassfactory.com/)
 
 ## Installation
@@ -64,4 +66,4 @@ const client = new HoloPlayCore.Client(
 
 ## Build
 
-See `BUILD.md`.
+If you're developing HoloplayCore.js and want to rebuild the dist version of this library, see [BUILD.md](./BUILD.md).
