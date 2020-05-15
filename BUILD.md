@@ -1,4 +1,4 @@
-# Building the HoloPlayCore library	
+# Building the HoloPlay Core library	
 
 The build script will output to the "dist" folder.	
 ```	
