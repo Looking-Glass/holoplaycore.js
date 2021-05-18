@@ -73,8 +73,8 @@
 	  }
 	  function writeUint8Array(value) {
 	    var dataView = ensureSpace(value.length);
-	    for (var i = 0; i < value.length; ++i)
-	      dataView.setUint8(offset + i, value[i]);
+	    const DataView8 = new Uint8Array(dataView.buffer);
+	    DataView8.set( value, offset );
 	    write();
 	  }
 	  function writeUint16(value) {
