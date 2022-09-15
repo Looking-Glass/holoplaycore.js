@@ -804,7 +804,6 @@
 	// export the shader for use in WebXR // cfg is defined in @lookingglass/webxr
 	function Shader(cfg) {
 	  return glslifyNumbers`
-  // Shader copied from HoloPlay.js
   precision mediump float;
   uniform int u_viewType;
   uniform sampler2D u_texture;
