@@ -1,6 +1,6 @@
 {
   "name": "holoplay-core",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "A library that works with Looking Glass HoloPlay Service",
   "main": "dist/holoplaycore.js",
   "module": "dist/holoplaycore.module.js",
@@ -14,7 +14,7 @@
     "holographic"
   ],
   "author": "Looking Glass Factory",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "license": "SEE LICENSE IN LICENSE.txt",
   "dependencies": {
     "cbor-js": "^0.1.0",
     "ws": "^7.2.0"
