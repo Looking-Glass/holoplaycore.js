@@ -415,13 +415,13 @@ else if (!global.CBOR)
 /**
  * This files defines the HoloPlayClient class and Message class.
  *
- * Copyright (c) [2019] [Looking Glass Factory]
+ * Copyright (c) [2024] [Looking Glass Factory]
  *
  * @link    https://lookingglassfactory.com/
  * @file    This files defines the HoloPlayClient class and Message class.
  * @author  Looking Glass Factory.
- * @version 0.0.8
- * @license SEE LICENSE IN LICENSE.md
+ * @version 0.0.11
+ * @license SEE LICENSE IN LICENSE.txt
  */
 
 // Polyfill WebSocket for nodejs applications.
@@ -537,7 +537,6 @@ class Client {
    * @private
    */
   messageHandler(event) {
-    console.log('message');
     let data = event.data;
     if (data.byteLength < 4) return;
     let view = new DataView(data);
@@ -797,56 +796,330 @@ function glslifyNumbers(strings, ...values) {
 
 // export the shader for use in WebXR // cfg is defined in @lookingglass/webxr
 function Shader(cfg) {
-  return glslifyNumbers`
-  precision mediump float;
-  uniform int u_viewType;
-  uniform sampler2D u_texture;
-  varying vec2 v_texcoord;
-  const float pitch    = ${cfg.pitch};
-  const float tilt     = ${cfg.tilt};
-  const float center   = ${cfg.calibration.center.value};
-  const float invView  = ${cfg.calibration.invView.value};
-  const float flipX    = ${cfg.calibration.flipImageX.value};
-  const float flipY    = ${cfg.calibration.flipImageY.value};
-  const float subp     = ${cfg.subp};
-  const float numViews = ${cfg.numViews};
-  const float tilesX   = ${cfg.quiltWidth};
-  const float tilesY   = ${cfg.quiltHeight};
-  const vec2 quiltViewPortion = vec2(
-    ${cfg.quiltWidth * cfg.tileWidth / cfg.framebufferWidth},
-    ${cfg.quiltHeight * cfg.tileHeight / cfg.framebufferHeight});
-  vec2 texArr(vec3 uvz) {
-    float z = floor(uvz.z * numViews);
-    float x = (mod(z, tilesX) + uvz.x) / tilesX;
-    float y = (floor(z / tilesX) + uvz.y) / tilesY;
-    return vec2(x, y) * quiltViewPortion;
-  }
-  float remap(float value, float from1, float to1, float from2, float to2) {
-    return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
-  }
-  void main() {
-    if (u_viewType == 2) { // "quilt" view
-      gl_FragColor = texture2D(u_texture, v_texcoord);
-      return;
+
+  const pitch = glslifyNumbers`${cfg.pitch}`;
+  const slope = glslifyNumbers`${cfg.tilt}`;
+  const center = glslifyNumbers`${cfg.calibration.center.value}`;
+  const subp = glslifyNumbers`${cfg.subp}`;
+  const tileCount = glslifyNumbers`${cfg.numViews}`;
+  const tilesX = glslifyNumbers`${cfg.quiltWidth}`;
+  const tilesY = glslifyNumbers`${cfg.quiltHeight}`;
+  const subpixelCellCount =`${Math.round(cfg.calibration.subpixelCells.length)}`;
+  const cellPatternType = `${Math.round(cfg.subpixelMode)}`;
+  const framebufferWidth = glslifyNumbers`${cfg.framebufferWidth}`;
+  const framebufferHeight = glslifyNumbers`${cfg.framebufferHeight}`;
+  const tileHeight = glslifyNumbers`${cfg.tileHeight}`;
+  const tileWidth = glslifyNumbers`${cfg.tileWidth}`;
+  const quiltWidth = glslifyNumbers`${cfg.quiltWidth}`;
+  const quiltHeight = glslifyNumbers`${cfg.quiltHeight}`;
+  const screenWidth = glslifyNumbers`${cfg.calibration.screenW.value}`;
+  const screenHeight = glslifyNumbers`${cfg.calibration.screenH.value}`;
+  const filterMode = `${Math.round(cfg.filterMode)}`;
+  const gaussianSigma = glslifyNumbers`${cfg.gaussianSigma}`;
+
+  return (
+
+    `#version 300 es
+    precision mediump float;
+
+    uniform int u_viewType;
+    uniform sampler2D u_texture;
+    in vec2 v_texcoord;
+
+    const int MAX_SUBPIXELS = 60;
+    uniform float subpixelData[MAX_SUBPIXELS];
+
+    const int subpixelCellCount = ${subpixelCellCount};
+    const int cellPatternType = ${cellPatternType};
+    const int filter_mode = ${filterMode};
+    const float gaussian_sigma = ${gaussianSigma};
+    const float tileCount = ${tileCount};
+    const float focus = 0.0;
+
+    const vec2 quiltViewPortion = vec2(
+      ${(quiltWidth * tileWidth) / framebufferWidth},
+      ${(quiltHeight * tileHeight) / framebufferHeight});
+
+    int GetCellForPixel(vec2 screen_uv)
+    {
+        int xPos = int(screen_uv.x * ${screenWidth});
+        int yPos = int(screen_uv.y * ${screenHeight});
+        int cell;
+    
+        if(cellPatternType == 0)
+        {
+            cell = 0;
+        }
+        else if(cellPatternType == 1)
+        {
+            // Checkerboard pattern AB
+            //                      BA
+            if ((yPos % 2 == 0 && xPos % 2 == 0) || (yPos % 2 != 0 && xPos % 2 != 0)) {
+                cell = 0;
+            } else {
+                cell = 1;
+            }
+        }
+        else if(cellPatternType == 2)
+        {
+            cell = xPos % 2;
+        }
+        else if(cellPatternType == 3)
+        {
+            int offset = (xPos % 2) * 2;
+            cell = ((yPos + offset) % 4);
+        }
+        else if(cellPatternType == 4)
+        {
+            cell = yPos % 2;
+        }
+    
+        return cell % subpixelCellCount;
     }
-    if (u_viewType == 1) { // middle view
-      gl_FragColor = texture2D(u_texture, texArr(vec3(v_texcoord.x, v_texcoord.y, 0.5)));
-      return;
+
+    vec2 GetQuiltCoordinates(vec2 tile_uv, int viewIndex)
+    {
+        float totalTiles = tileCount;
+        float floaty = float(viewIndex);
+        float view = clamp(floaty, 0.0, totalTiles);
+        // on some platforms this is required to fix some precision issue???
+        float tx = ${tilesX} - 0.00001; // just an incredibly dumb bugfix
+        float tileXIndex = mod(view, tx);
+        float tileYIndex = floor(view / tx);
+    
+        float quiltCoordU = ((tileXIndex + tile_uv.x) / tx) * quiltViewPortion.x;
+        float quiltCoordV = ((tileYIndex + tile_uv.y) / ${tilesY}) * quiltViewPortion.y;
+    
+        vec2 quilt_uv = vec2(quiltCoordU, quiltCoordV);
+    
+        return quilt_uv;
     }
-    vec4 rgb[3];
-    vec3 nuv = vec3(v_texcoord.xy, 0.0);
-    // Flip UVs if necessary
-    nuv.x = (1.0 - flipX) * nuv.x + flipX * (1.0 - nuv.x);
-    nuv.y = (1.0 - flipY) * nuv.y + flipY * (1.0 - nuv.y);
-    for (int i = 0; i < 3; i++) {
-      nuv.z = (v_texcoord.x + float(i) * subp + v_texcoord.y * tilt) * pitch - center;
-      nuv.z = mod(nuv.z + ceil(abs(nuv.z)), 1.0);
-      nuv.z = (1.0 - invView) * nuv.z + invView * (1.0 - nuv.z);
-      rgb[i] = texture2D(u_texture, texArr(vec3(v_texcoord.x, v_texcoord.y, nuv.z)));
+
+    float GetPixelShift(float val, int subPixel, int axis, int cell)
+    {
+        int index = cell * 6 + subPixel * 2 + axis;
+        float offset = subpixelData[index];
+
+        return val + offset;
     }
-    gl_FragColor = vec4(rgb[0].r, rgb[1].g, rgb[2].b, 1);
-  }
-`;
-  }
+
+    vec3 GetSubpixelViews(vec2 screen_uv) {
+        vec3 views = vec3(0.0);
+
+        // calculate x contribution for each cell
+        if(subpixelCellCount <= 0)
+        {
+            views[0] = screen_uv.x + ${subp} * 0.0;
+            views[1] = screen_uv.x + ${subp} * 1.0;
+            views[2] = screen_uv.x + ${subp} * 2.0;
+                
+    
+            // calculate y contribution for each cell
+            views[0] += screen_uv.y * ${slope};
+            views[1] += screen_uv.y * ${slope};
+            views[2] += screen_uv.y * ${slope};
+        } else {
+            // get the cell type for this screen space pixel
+            int cell = GetCellForPixel(screen_uv);
+    
+            // calculate x contribution for each cell
+            views[0]  = GetPixelShift(screen_uv.x, 0, 0, cell);
+            views[1]  = GetPixelShift(screen_uv.x, 1, 0, cell);
+            views[2]  = GetPixelShift(screen_uv.x, 2, 0, cell);
+    
+            // calculate y contribution for each cell
+            views[0] += GetPixelShift(screen_uv.y, 0, 1, cell) * ${slope};
+            views[1] += GetPixelShift(screen_uv.y, 1, 1, cell) * ${slope};
+            views[2] += GetPixelShift(screen_uv.y, 2, 1, cell) * ${slope};
+        }
+
+        views *= vec3(${pitch});
+        views -= vec3(${center});
+        views = vec3(1.0) - fract(views);
+
+        views = clamp(views, vec3(0.00001), vec3(0.999999));
+    
+        return views;
+    }
+    
+    // this is the simplest sampling mode where we just cast the viewIndex to int and take the color from that tile.
+    vec4 GetViewsColors(vec2 tile_uv, vec3 views)
+    {
+        vec4 color = vec4(0, 0, 0, 1);
+    
+        for(int channel = 0; channel < 3; channel++)
+        {
+            int viewIndex = int(views[channel] * tileCount);
+    
+            float viewDir = views[channel] * 2.0 - 1.0;
+            vec2 focused_uv = tile_uv;
+            focused_uv.x += viewDir * focus;
+    
+            vec2 quilt_uv = GetQuiltCoordinates(focused_uv, viewIndex);
+            color[channel] = texture(u_texture, quilt_uv)[channel];
+        }
+    
+        return color;
+    }
+
+    //view filtering
+
+    vec4 OldViewFiltering(vec2 tile_uv, vec3 views)
+    {
+        vec3 viewIndicies = views * tileCount;
+        float viewSpaceTileSize = 1.0 / tileCount;
+    
+        // the idea here is to sample the closest two views and lerp between them
+        vec3 leftViews = views;
+        vec3 rightViews = leftViews + viewSpaceTileSize;
+    
+        vec4 leftColor = GetViewsColors(tile_uv, leftViews);
+        vec4 rightColor = GetViewsColors(tile_uv, rightViews);
+    
+        vec3 leftRightLerp = viewIndicies - floor(viewIndicies);
+    
+        return vec4(
+            mix(leftColor.x, rightColor.x, leftRightLerp.x),
+            mix(leftColor.y, rightColor.y, leftRightLerp.y),
+            mix(leftColor.z, rightColor.z, leftRightLerp.z),
+            1.0
+        );
+    }
+
+    vec4 GaussianViewFiltering(vec2 tile_uv, vec3 views)
+    {
+        vec3 viewIndicies = views * tileCount;
+        float viewSpaceTileSize = 1.0 / tileCount;
+    
+        // this is just sampling a center view and the left and right view
+        vec3 centerViews = views;
+        vec3 leftViews = centerViews - viewSpaceTileSize;
+        vec3 rightViews = centerViews + viewSpaceTileSize;
+    
+        vec4 centerColor = GetViewsColors(tile_uv, centerViews);
+        vec4 leftColor   = GetViewsColors(tile_uv, leftViews);
+        vec4 rightColor  = GetViewsColors(tile_uv, rightViews);
+    
+        // Calculate the effective discrete view directions based on the tileCount
+        vec3 centerSnappedViews = floor(centerViews * tileCount) / tileCount;
+        vec3 leftSnappedViews = floor(leftViews * tileCount) / tileCount;
+        vec3 rightSnappedViews = floor(rightViews * tileCount) / tileCount;
+    
+        // Gaussian weighting
+        float sigma = gaussian_sigma;
+        float multiplier = 2.0 * sigma * sigma;
+    
+        vec3 centerDiff = views - centerSnappedViews;
+        vec3 leftDiff = views - leftSnappedViews;
+        vec3 rightDiff = views - rightSnappedViews;
+    
+        vec3 centerWeight = exp(-centerDiff * centerDiff / multiplier);
+        vec3 leftWeight = exp(-leftDiff * leftDiff / multiplier);
+        vec3 rightWeight = exp(-rightDiff * rightDiff / multiplier);
+    
+        // Normalize the weights so they sum to 1 for each channel
+        vec3 totalWeight = centerWeight + leftWeight + rightWeight;
+        centerWeight /= totalWeight;
+        leftWeight /= totalWeight;
+        rightWeight /= totalWeight;
+    
+        // Weighted averaging based on Gaussian weighting for each channel
+        vec4 outputColor = vec4(
+            centerColor.r * centerWeight.x + leftColor.r * leftWeight.x + rightColor.r * rightWeight.x,
+            centerColor.g * centerWeight.y + leftColor.g * leftWeight.y + rightColor.g * rightWeight.y,
+            centerColor.b * centerWeight.z + leftColor.b * leftWeight.z + rightColor.b * rightWeight.z,
+            1.0
+        );
+    
+        return outputColor;
+    }
+
+    vec4 NGaussianViewFiltering(vec2 tile_uv, vec3 views, int n)
+    {
+        vec3 viewIndicies = views * tileCount;
+        float viewSpaceTileSize = 1.0 / tileCount;
+    
+        float sigma = gaussian_sigma;  // Adjust as needed
+        float multiplier = 2.0 * sigma * sigma;
+    
+        vec4 outputColor = vec4(0.0);
+    
+        for(int i = -n; i <= n; i++)
+        {
+            float offset = float(i) * viewSpaceTileSize;
+            vec3 offsetViews = views + offset;
+    
+            vec4 sampleColor = GetViewsColors(tile_uv, offsetViews);
+    
+            // Calculate the effective discrete view directions based on the tileCount
+            vec3 snappedViews = floor(offsetViews * tileCount) / tileCount;
+    
+            // Calculate Gaussian weights
+            vec3 diff = views - snappedViews;
+            vec3 weight = exp(-diff * diff / multiplier);
+    
+            // Accumulate color
+            outputColor.rgb += sampleColor.rgb * weight;
+        }
+        // Normalize the color
+        vec3 totalWeight = vec3(0.0);
+        for(int i = -n; i <= n; i++)
+        {
+            float offset = float(i) * viewSpaceTileSize;
+            vec3 offsetViews = views + offset;
+    
+            // Calculate the effective discrete view directions based on the tileCount
+            vec3 snappedViews = floor(offsetViews * tileCount) / tileCount;
+    
+            // Calculate Gaussian weights
+            vec3 diff = views - snappedViews;
+            vec3 weight = exp(-diff * diff / multiplier);
+    
+            totalWeight += weight;
+        }
+    
+        outputColor.rgb /= totalWeight;
+        outputColor.a = 1.0;
+    
+        return outputColor;
+    }
+
+    float remap(float value, float from1, float to1, float from2, float to2) {
+      return (value - from1) / (to1 - from1) * (to2 - from2) + from2;
+    }
+
+    out vec4 color;
+
+    void main() {
+      if (u_viewType == 2) { // "quilt" view
+        color = texture(u_texture, v_texcoord);
+        return;
+      }
+      if (u_viewType == 1) { // middle view
+        color = texture(u_texture, GetQuiltCoordinates(v_texcoord.xy, ${Math.round(tileCount / 2)}));
+        return;
+      }
+
+    vec3 views = GetSubpixelViews(v_texcoord);
+
+    if(filter_mode == 0)
+        {
+            color = GetViewsColors(v_texcoord, views);
+        }
+        else if(filter_mode == 1)
+        {
+            color = OldViewFiltering(v_texcoord, views);
+        }
+        else if(filter_mode == 2)
+        {
+            color = GaussianViewFiltering(v_texcoord, views);
+        }
+        else if(filter_mode == 3)
+        {
+            color = NGaussianViewFiltering(v_texcoord, views, 10);
+        }
+    }
+  `)
+}
 
 export { CacheMessage, CheckMessage, Client, DeleteMessage, InfoMessage, InitMessage, Message, Shader, ShaderMessage, ShowCachedMessage, ShowMessage, UniformsMessage, WipeMessage };
